@@ -1,7 +1,3 @@
-Absolutely! Here's your updated and comprehensive `README.md` that explains everything clearly — including `.env` usage, port configuration, LAN access, and customization options:
-
----
-
 ## 📦 docker-sftp
 
 A lightweight, secure SFTP server built with Docker and OpenSSH. This containerized setup exposes a shared folder via SFTP, isolates the user in a chroot jail, and allows easy customization through environment variables.
