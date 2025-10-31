@@ -1,0 +1,9 @@
+services:
+  sftp:
+    build: .
+    container_name: sftp-server
+    ports:
+      - "10.8.0.3:2222:22"
+    volumes:
+      - ./data:/home/david/sftp/files
+    restart: unless-stopped
