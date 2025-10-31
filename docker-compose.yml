@@ -1,9 +1,13 @@
 services:
   sftp:
-    build: .
+    build:
+      context: .
+      args:
+        SFTP_USER: ${SFTP_USER}
+        SFTP_PASS: ${SFTP_PASS}
     container_name: sftp-server
     ports:
-      - "10.8.0.3:2222:22"
+      - "0.0.0.0:2222:22"
     volumes:
-      - ./data:/home/david/sftp/files
+      - ./data:/home/${SFTP_USER}/sftp/files
     restart: unless-stopped

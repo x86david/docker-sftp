@@ -1,22 +1,28 @@
 FROM debian:stable-slim
 
+ARG SFTP_USER
+ARG SFTP_PASS
+
+ENV SFTP_USER=${SFTP_USER}
+ENV SFTP_PASS=${SFTP_PASS}
+
 RUN apt-get update && \
     apt-get install -y openssh-server && \
     mkdir -p /var/run/sshd
 
 # Create user and set password
-RUN useradd -m -d /home/david/sftp/files -s /usr/sbin/nologin david && \
-    echo "david:12345" | chpasswd
+RUN useradd -m -d /home/${SFTP_USER}/sftp/files -s /usr/sbin/nologin ${SFTP_USER} && \
+    echo "${SFTP_USER}:${SFTP_PASS}" | chpasswd
 
 # Create chroot structure
-RUN mkdir -p /home/david/sftp/files && \
-    chown root:root /home/david/sftp && \
-    chmod 755 /home/david/sftp && \
-    chown david:david /home/david/sftp/files
+RUN mkdir -p /home/${SFTP_USER}/sftp/files && \
+    chown root:root /home/${SFTP_USER}/sftp && \
+    chmod 755 /home/${SFTP_USER}/sftp && \
+    chown ${SFTP_USER}:${SFTP_USER} /home/${SFTP_USER}/sftp/files
 
 # Configure SSHD for SFTP-only
-RUN echo "Match User david\n\
-    ChrootDirectory /home/david/sftp\n\
+RUN echo "Match User ${SFTP_USER}\n\
+    ChrootDirectory /home/${SFTP_USER}/sftp\n\
     ForceCommand internal-sftp\n\
     AllowTcpForwarding no\n\
     X11Forwarding no" >> /etc/ssh/sshd_config
