@@ -14,11 +14,8 @@ RUN apt-get update && \
 RUN useradd -m -d /home/${SFTP_USER}/sftp/files -s /usr/sbin/nologin ${SFTP_USER} && \
     echo "${SFTP_USER}:${SFTP_PASS}" | chpasswd
 
-# Create chroot structure
-RUN mkdir -p /home/${SFTP_USER}/sftp/files && \
-    chown root:root /home/${SFTP_USER}/sftp && \
-    chmod 755 /home/${SFTP_USER}/sftp && \
-    chown ${SFTP_USER}:${SFTP_USER} /home/${SFTP_USER}/sftp/files
+# Create chroot structure initially
+RUN mkdir -p /home/${SFTP_USER}/sftp/files
 
 # Configure SSHD for SFTP-only with optimized buffer and request parameters
 RUN echo "Match User ${SFTP_USER}\n\
@@ -27,5 +24,11 @@ RUN echo "Match User ${SFTP_USER}\n\
     AllowTcpForwarding no\n\
     X11Forwarding no" >> /etc/ssh/sshd_config
 
+# Copy and set up the entrypoint script to fix mount permissions at runtime
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 EXPOSE 22
+
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["/usr/sbin/sshd", "-D"]
