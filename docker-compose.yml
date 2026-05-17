@@ -5,10 +5,9 @@ services:
       args:
         SFTP_USER: ${SFTP_USER}
         SFTP_PASS: ${SFTP_PASS}
-        SFTP_UID: "1000" # <--- CHANGE THIS to match the UID you found in Step 1
     container_name: sftp-server
     ports:
       - "0.0.0.0:2222:22"
     volumes:
-      - ./data:/home/${SFTP_USER}/sftp/files
+      - ./data:/home/${SFTP_USER}/sftp # <-- Moved up one level
     restart: unless-stopped
