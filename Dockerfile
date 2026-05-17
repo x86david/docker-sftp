@@ -1,25 +1,20 @@
-FROM debian:stable-slim
-
-ARG SFTP_USER
-ARG SFTP_PASS
-
-ENV SFTP_USER=${SFTP_USER}
-ENV SFTP_PASS=${SFTP_PASS}
+FROM docker.io/library/debian:stable-slim
 
 RUN apt-get update && \
-    apt-get install -y openssh-server && \
-    mkdir -p /var/run/sshd
+    apt-get install -y --no-install-recommends openssh-server && \
+    mkdir -p /var/run/sshd && \
+    rm -rf /var/lib/apt/lists/*
 
-# Create user and set password
-RUN useradd -m -d /home/${SFTP_USER}/sftp -s /usr/sbin/nologin ${SFTP_USER} && \
-    echo "${SFTP_USER}:${SFTP_PASS}" | chpasswd
-
-# Configure SSHD with our buffer speed optimization flags
-RUN echo "Match User ${SFTP_USER}\n\
-    ChrootDirectory /home/${SFTP_USER}/sftp\n\
-    ForceCommand internal-sftp -R 64 -B 262144\n\
+# Hardcode security policies safely inside the global configuration file
+RUN mkdir -p /sftp && \
+    echo "Match Group david,1000,sftp\n\
+    ChrootDirectory /sftp\n\
+    ForceCommand internal-sftp\n\
     AllowTcpForwarding no\n\
     X11Forwarding no" >> /etc/ssh/sshd_config
 
+# Import and hook the dynamic initialization sequence
+COPY entrypoint.sh /entrypoint.sh
 EXPOSE 22
-CMD ["/usr/sbin/sshd", "-D"]
+
+ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]

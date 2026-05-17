@@ -2,12 +2,14 @@ services:
   sftp:
     build:
       context: .
-      args:
-        SFTP_USER: ${SFTP_USER}
-        SFTP_PASS: ${SFTP_PASS}
     container_name: sftp-server
     ports:
-      - "0.0.0.0:2222:22"
+      - "2222:22"
+    environment:
+      - SFTP_USER=david
+      - SFTP_PASS=12345
+      - USER_UID=1000  # Automatically maps to your laptop user ID
+      - USER_GID=1000  # Automatically maps to your laptop group ID
     volumes:
-      - ./data:/home/${SFTP_USER}/sftp # <-- Moved up one level
+      - ./data:/sftp/files
     restart: unless-stopped
