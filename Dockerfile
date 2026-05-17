@@ -2,6 +2,7 @@ FROM debian:stable-slim
 
 ARG SFTP_USER
 ARG SFTP_PASS
+ARG SFTP_UID # <--- Add this line
 
 ENV SFTP_USER=${SFTP_USER}
 ENV SFTP_PASS=${SFTP_PASS}
@@ -10,8 +11,8 @@ RUN apt-get update && \
     apt-get install -y openssh-server && \
     mkdir -p /var/run/sshd
 
-# Create user and set password
-RUN useradd -m -d /home/${SFTP_USER}/sftp/files -s /usr/sbin/nologin ${SFTP_USER} && \
+# Create user with a SPECIFIC UID matching your host laptop
+RUN useradd -m -u ${SFTP_UID} -d /home/${SFTP_USER}/sftp/files -s /usr/sbin/nologin ${SFTP_USER} && \
     echo "${SFTP_USER}:${SFTP_PASS}" | chpasswd
 
 # Create chroot structure initially
