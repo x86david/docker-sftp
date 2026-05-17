@@ -20,10 +20,10 @@ RUN mkdir -p /home/${SFTP_USER}/sftp/files && \
     chmod 755 /home/${SFTP_USER}/sftp && \
     chown ${SFTP_USER}:${SFTP_USER} /home/${SFTP_USER}/sftp/files
 
-# Configure SSHD for SFTP-only
+# Configure SSHD for SFTP-only with optimized buffer and request parameters
 RUN echo "Match User ${SFTP_USER}\n\
     ChrootDirectory /home/${SFTP_USER}/sftp\n\
-    ForceCommand internal-sftp\n\
+    ForceCommand internal-sftp -R 64 -B 262144\n\
     AllowTcpForwarding no\n\
     X11Forwarding no" >> /etc/ssh/sshd_config
 
